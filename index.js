@@ -16,7 +16,7 @@ function toRealPath(content, file){
                     if(!feather.util.isRemoteUrl($1) && $1[0] != '/'){
                         var tmpFile = $1[0] == '.' ? new feather.file(path.resolve(file.dirname, $1)) : feather.file.wrap($1);
 
-                        if(tmpFile.exists()){
+                        if(tmpFile.isFile() && tmpFile.exists()){
                             $1 = tmpFile.subpath;
                         }
                     }

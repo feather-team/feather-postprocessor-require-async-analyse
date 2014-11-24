@@ -1,6 +1,6 @@
 {
   "name": "feather-postprocessor-require-async-analyse",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "feather require async analyse",
   "main": "index.js",
   "scripts": {
