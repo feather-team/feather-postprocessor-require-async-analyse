@@ -21,7 +21,7 @@ function toRealPath(content, file){
                         }
                     }
 
-                    file.addRequire($1);
+                    file.extras.requires.push($1);
                     return '"' + $1 + '"';
                 }
 
@@ -34,6 +34,8 @@ function toRealPath(content, file){
 }
 
 module.exports = function(content, file, conf){
+    file.extras.requires = [];
+
     if(file.isHtmlLike){
         content = content.replace(SCRIPT_REG, function($0, $1, $2){
             if($2){
@@ -42,6 +44,13 @@ module.exports = function(content, file, conf){
 
             return $0;
         });
+
+        var sameJs = feather.file.wrap(file.id.replace(/\.[^\.]+$/, '.js'));
+
+        if(sameJs.exists() && file.extras.requires.indexOf(sameJs.subpath) == -1){
+            content += '<script>require.async("' + sameJs.subpath + '");</script>';
+            file.extras.requires.push(sameJs.subpath);
+        }
     }else if(file.isJsLike){
         if(!file.isMod){
             content = toRealPath(content, file);
