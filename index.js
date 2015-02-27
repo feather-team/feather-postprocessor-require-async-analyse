@@ -46,10 +46,24 @@ module.exports = function(content, file, conf){
         });
 
         var sameJs = feather.file.wrap(file.id.replace(/\.[^\.]+$/, '.js'));
+    
+        if(sameJs.exists()){
+            var url = sameJs.getUrl(feather.compile.settings.hash, feather.compile.settings.domain);
 
-        if(sameJs.exists() && file.extras.requires.indexOf(sameJs.subpath) == -1){
-            content += '<script>require.async("' + sameJs.subpath + '");</script>';
-            file.extras.requires.push(sameJs.subpath);
+            if(file.extras.requires.indexOf(sameJs.subpath) == -1
+                && file.extras.headJs.indexOf(url) == -1
+                && file.extras.bottomJs.indexOf(url) == -1
+            ){
+                if(/<\/body>/.test(content)){
+                    content = content.replace(/<\/body>/, function(){
+                        return '<script>require.async("' + sameJs.subpath + '");</script></body>';
+                    });
+                }else{
+                    content += '<script>require.async("' + sameJs.subpath + '");</script>';
+                }
+                
+                file.extras.requires.push(sameJs.subpath);
+            }
         }
     }else if(file.isJsLike){
         if(!file.isMod){
