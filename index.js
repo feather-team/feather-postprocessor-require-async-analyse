@@ -5,6 +5,7 @@
 
 var SCRIPT_REG = /<!--(?:(?!\[if [^\]]+\]>)[\s\S])*?-->|(<script[^>]*>)([\s\S]*?)<\/script>/ig;
 var REQUIRE_ASYNC_REG = /'(?:\\'|[^'])*'|"(?:\\"|[^"])*"|\/\/[^\r\n]*|\/\*[\s\S]*?\*\/|require\.async\(([\s\S]+?)(?=,\s*function\(|\))/g, URL_REG = /['"]([^'"]+)['"]/g;
+var USE_REQUIRE = feather.config.get('moduleLoader');
 
 var path = require('path');
 
@@ -35,6 +36,8 @@ function toRealPath(content, file){
 
 module.exports = function(content, file, conf){
     file.extras.requires = [];
+
+    if(!USE_REQUIRE) return content;
 
     if(file.isHtmlLike){
         content = content.replace(SCRIPT_REG, function($0, $1, $2){
