@@ -5,7 +5,7 @@
 
 var SCRIPT_REG = /<!--(?:(?!\[if [^\]]+\]>)[\s\S])*?-->|(<script[^>]*>)([\s\S]*?)<\/script>/ig;
 var REQUIRE_ASYNC_REG = /"(?:[^\\"\r\n\f]|\\[\s\S])*"|'(?:[^\\'\n\r\f]|\\[\s\S])*'|(?:\/\/[^\r\n\f]+|\/\*[\s\S]*?(?:\*\/|$))|require\.async\(([\s\S]+?)(?=,\s*function\(|\))/g, URL_REG = /['"]([^'"]+)['"]/g;
-var USE_REQUIRE = feather.config.get('moduleLoader');
+var USE_REQUIRE = feather.config.get('require.use');
 
 var path = require('path');
 
@@ -22,7 +22,7 @@ function toRealPath(content, file){
                         }
                     }
 
-                    file.extras.requires.push($1);
+                    file.extras.async.push($1);
                     return '"' + $1 + '"';
                 }
 
@@ -35,7 +35,7 @@ function toRealPath(content, file){
 }
 
 module.exports = function(content, file, conf){
-    file.extras.requires = [];
+    file.extras.async = [];
 
     if(!USE_REQUIRE) return content;
 
@@ -53,7 +53,7 @@ module.exports = function(content, file, conf){
         if(sameJs.exists()){
             var url = sameJs.getUrl(feather.compile.settings.hash, feather.compile.settings.domain);
 
-            if(file.extras.requires.indexOf(sameJs.subpath) == -1
+            if(file.extras.async.indexOf(sameJs.subpath) == -1
                 && file.extras.headJs.indexOf(url) == -1
                 && file.extras.bottomJs.indexOf(url) == -1
             ){
@@ -65,13 +65,11 @@ module.exports = function(content, file, conf){
                     content += '<script>require.async("' + sameJs.subpath + '");</script>';
                 }
                 
-                file.extras.requires.push(sameJs.subpath);
+                file.extras.async.push(sameJs.subpath);
             }
         }
     }else if(file.isJsLike){
-        if(!file.isMod){
-            content = toRealPath(content, file);
-        }
+        content = toRealPath(content, file);
     }
 
     return content;
